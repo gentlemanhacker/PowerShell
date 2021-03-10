@@ -1,0 +1,12 @@
+<#
+Author: Smith, Justin
+Date: 2020
+
+Modified: NA
+
+Changes:
+
+Will hash all the files in a directory you specify
+#>
+ls | Get-FileHash -Algorithm MD5 | 
+New-Item -ItemType Directory -Force -Path "C:\location\"
