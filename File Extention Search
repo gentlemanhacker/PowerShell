@@ -1,0 +1,15 @@
+<#
+Author: Smith, Justin
+Date: 2020
+
+Modified: NA
+
+Changes:
+
+Search across folder and subfolders for a file extention
+#>
+
+#Recursivley Search for zip files, get count
+(Get-ChildItem -Path 'C:\Users\' -Filter *.zip -Recurse -File -Name).count
+#Recursivley Search for rar files, get count
+(Get-ChildItem -Path 'C:\Users\' -Filter *.rar -Recurse -File -Name).count
