@@ -2,9 +2,10 @@
 Author: Smith, Justin
 Date: 2020
 
-Modified: NA
+Modified: 3/10/2021
 
 Changes:
+  Added how to find zip/rar files if extention is changed (hex strings identify file type)
 
 Search across folder and subfolders for a file extention
 #>
@@ -13,3 +14,6 @@ Search across folder and subfolders for a file extention
 (Get-ChildItem -Path 'C:\Users\' -Filter *.zip -Recurse -File -Name).count
 #Recursivley Search for rar files, get count
 (Get-ChildItem -Path 'C:\Users\' -Filter *.rar -Recurse -File -Name).count
+
+#The following can also look for rar and zip files that don't have the proper extentions
+((Get-ChildItem -Recurse -Force -Include *.txt -ErrorAction SilentlyContinue).FullName | ForEach-Object { Format-Hex -Path $_} | Select-String "50 4B", "52 61").count
