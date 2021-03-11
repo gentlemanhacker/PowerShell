@@ -1,0 +1,11 @@
+<#
+Author: Smith, Justin
+Date: 2020
+
+Modified: NA
+
+Changes:
+
+Search across folder and subfolders for alternate data streams
+#>
+Get-ChildItem -Path 'C:\Users\' -recurse | ForEach { Get-Item $_.FullName -stream * } | Where stream -ne ':$DATA'
