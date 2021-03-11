@@ -2,10 +2,15 @@
 Author: Smith, Justin
 Date: 2020
 
-Modified: NA
+Modified: 3/10/2021
 
 Changes:
+  Added code to check what is inside stream when you find one
 
 Search across folder and subfolders for alternate data streams
 #>
 Get-ChildItem -Path 'C:\Users\' -recurse | ForEach { Get-Item $_.FullName -stream * } | Where stream -ne ':$DATA'
+
+#Once you find the stream,  enter the location and stream name
+#Get-Content 'C:\Users\location\document.ext' -stream streamname
+#Future item: just code it to do this for you and export to file.
