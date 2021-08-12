@@ -1,6 +1,14 @@
-# Takes ioc's and looks for them in the registry
-# Modify the ips.txt, reg.txt and files.txt
-# logs in through a pssession, need to have valid credentials
+<#
+Author: Smith, Justin
+Date: 2020
+
+Modified: Aug 12, 2021
+Changes:
+
+ Takes ioc's and looks for them in the registry
+ Modify the ips.txt, reg.txt and files.txt
+ logs in through a pssession, need to have valid credentials
+#>
 
 $iocs = (Get-Content 'C:\files.txt').Replace("%TEMP%","C:\Users\*\Appdata\local\Temp").Replace("%USERAPPDATA%","C:\Users\*\Appdata\").Replace("%PROGRAMS%","C:\Users\*\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\").Replace("%USERPROFILE%","$env:USERPROFILE")
 $registry_iocs = (Get-Content 'C:\reg.txt').Replace("\`"","\").Replace("`"","`n").Replace("HKEY_LOCAL_MACHINE","HKLM:").Replace("HKEY_CURRENT_USER","HKCU:")
