@@ -1,0 +1,51 @@
+# Takes ioc's and looks for them in the registry
+# Modify the ips.txt, reg.txt and files.txt
+# logs in through a pssession, need to have valid credentials
+
+$iocs = (Get-Content 'C:\files.txt').Replace("%TEMP%","C:\Users\*\Appdata\local\Temp").Replace("%USERAPPDATA%","C:\Users\*\Appdata\").Replace("%PROGRAMS%","C:\Users\*\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\").Replace("%USERPROFILE%","$env:USERPROFILE")
+$registry_iocs = (Get-Content 'C:\reg.txt').Replace("\`"","\").Replace("`"","`n").Replace("HKEY_LOCAL_MACHINE","HKLM:").Replace("HKEY_CURRENT_USER","HKCU:")
+$connections = Get-Content 'C:\ips.txt'
+ 
+$ErrorActionPreference='SilentlyContinue'
+ 
+if ((Get-Service -Name winrm).Status -ne "Running"){
+    Start-Service -Name winrm}
+ 
+Set-NetConnectionProfile -NetworkCategory Private
+ 
+$hosts = @()
+56,83,107 | foreach {if (Test-Connection -ComputerName 10.10.10.$_ -Count 1 -Quiet){
+    $hosts+="10.10.10.$_"}}
+ 
+Foreach ($ip in $hosts){
+        Set-Item WSMan:\localhost\Client\TrustedHosts -value $ip -Force
+        Write-Host "Creating a PSSession for $ip" -BackgroundColor Black -ForegroundColor Green
+        $session = New-Pssession -ComputerName $ip
+        Write-Host "Getting Files for $ip" -BackgroundColor Black -ForegroundColor Cyan
+ 
+        Invoke-Command -Session $session -ArgumentList $iocs -ScriptBlock {
+            foreach ($line in $using:iocs){
+                (Get-Childitem "$line" -ErrorAction SilentlyContinue) | select *
+            }}
+ 
+        Write-Host "Getting Run Keys for $ip" -BackgroundColor Black -ForegroundColor Cyan
+ 
+        Invoke-Command -Session $session -ScriptBlock {
+            foreach ($r in $using:registry_iocs){
+                foreach ($lm in (Get-item HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run).property){
+                    $r | Select-String -Pattern "$lm"}
+                foreach ($cu in (Get-item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run).property){
+                    $r| findstr /i "$cu"}                    
+                }}
+ 
+        Write-Host "Getting Connections for $ip" -BackgroundColor Black -ForegroundColor Cyan
+ 
+        Invoke-Command -session $session -ScriptBlock {
+            foreach ($c in $using:connections){
+            if (netstat -anoq | findstr $c){$c} }
+        }
+ 
+        Remove-PSSession -Session $session
+        }
+$ErrorActionPreference='Continue'
+ 
